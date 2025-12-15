@@ -1,0 +1,49 @@
+= Mealie HelloFresh bridge
+
+== Purpose
+
+This script simply allows to export and centralize all recipes you have ordered on HelloFresh directly in Mealie using a dedicated tag.
+
+== Process
+
+The script will first retrieve last recipes URLs (by default last 4 orders because of HelloFresh dedicated entrypoint paging). It will then list all recipes with a given tag (default is HelloFresh) you already have in Mealie and parse their origin URL. Every retrieved HelloFresh recipe that isn't already in Mealie will be added to it with the given tag.
+
+== Get started
+
+You first need to provide a Mealie as well as a HelloFresh API token. For Mealie you would need to create the API token on https://<mealie_server>/user/profile/api-tokens. For HelloFresh, you can easily find a token by checking the request header authorization on any authenticated API call from the browser console. Export those two tokens in your shell as such:
+
+[source,shell]
+----
+export HELLOFRESH_TOKEN="Bearer xxx"
+export MEALIE_TOKEN="Bearer xxx"
+----
+
+Then, you only need to provide as an argument which country your HelloFresh account is from to run it:
+
+[source,shell]
+----
+# No deps, any Python3.X should work
+# Countries/languages list is given in the help below
+python recipe_bridge.py --country <country> --language <language>
+----
+
+Full explanation on the script usage is as follow:
+
+[source,shell]
+----
+usage: recipe_bridge.py [-h] --country {at,ch,fr,lu,au,de,gb,nl,se,be,dk,ie,no,us,ca,es,it,nz} --language {de,fr,en,nl,sv,da,nb,es,it} [--mealie-tag MEALIE_TAG] [--additional-deliveries ADDITIONAL_DELIVERIES] [--debug]
+                        [--dry-run]
+
+options:
+  -h, --help            show this help message and exit
+  --country {at,ch,fr,lu,au,de,gb,nl,se,be,dk,ie,no,us,ca,es,it,nz}, -c {at,ch,fr,lu,au,de,gb,nl,se,be,dk,ie,no,us,ca,es,it,nz}
+                        Country linked to your HelloFresh account
+  --language {de,fr,en,nl,sv,da,nb,es,it}, -l {de,fr,en,nl,sv,da,nb,es,it}
+                        Locale linked to your HelloFresh account
+  --mealie-tag MEALIE_TAG, -t MEALIE_TAG
+                        Mealie tag to group HelloFresh recipes (default: HelloFresh)
+  --additional-deliveries ADDITIONAL_DELIVERIES, -a ADDITIONAL_DELIVERIES
+                        Number of additional months to retrieve from HelloFresh
+  --debug               Enable debug logs
+  --dry-run, -d         Just fetch and count recipes from HelloFresh that would be added to Mealie
+----
