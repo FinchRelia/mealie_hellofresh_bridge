@@ -18,7 +18,7 @@ export HELLOFRESH_TOKEN="Bearer xxx"
 export MEALIE_TOKEN="Bearer xxx"
 ----
 
-Then, you only need to provide as an argument which country your HelloFresh account is from to run it:
+Then, you only need to provide as arguments which country/language your HelloFresh account is from to run it:
 
 [source,shell]
 ----
