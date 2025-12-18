@@ -162,27 +162,32 @@ class Mealie(HttpResponder):
             recipe["orgURL"] for recipe in tagged_recipes_res["items"]
         ]
 
-    def add_mealie_recipe(self, recipe_url) -> None:
+    def add_mealie_recipe(self, recipe_url):
         logging.info(f"Creating new recipe with url: {recipe_url}")
-        new_recipe_slug = self.json_request(
+        return(self.json_request(
             url=f"{self.base_url}/api/recipes/create/url",
             method="post",
             headers=self.headers,
             data={"url": recipe_url},
-        )
+        ))
+
+    def get_mealie_recipe(self, recipe_slug) -> None:
         logging.debug("Getting newly created recipe ID")
-        new_recipe_body = self.json_request(
-            url=f"{self.base_url}/api/recipes/{new_recipe_slug}",
+        return(self.json_request(
+            url=f"{self.base_url}/api/recipes/{recipe_slug}",
             method="get",
             headers=self.headers,
-        )
-        new_recipe_body["tags"].append(self.tag)
+        ))
+
+    def update_mealie_recipe(self, recipe_slug) -> None:
+        recipe_body = self.get_mealie_recipe(recipe_slug)
+        recipe_body["tags"].append(self.tag)
         logging.debug("Patching recipe to add custom tag to it")
         _ = self.json_request(
-            url=f"{self.base_url}/api/recipes/{new_recipe_slug}",
+            url=f"{self.base_url}/api/recipes/{recipe_slug}",
             method="patch",
             headers=self.headers,
-            data=new_recipe_body,
+            data=recipe_body,
         )
 
 
@@ -288,7 +293,8 @@ def main():
         exit(0)
     for new_recipe in hellofresh_client.recipes:
         if new_recipe not in mealie_client.tagged_recipes:
-            mealie_client.add_mealie_recipe(new_recipe)
+            recipe_slug = mealie_client.add_mealie_recipe(new_recipe)
+            mealie_client.update_mealie_recipe(recipe_slug)
 
 
 if __name__ == "__main__":
