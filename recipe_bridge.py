@@ -116,7 +116,7 @@ class Mealie(HttpResponder):
             "accept": "application/json",
             "Content-Type": "application/json",
         }
-        self.tagged_recipes = []
+        self.tagged_recipes = set()
 
     def create_tag(self, tag) -> None:
         self.tag = self.json_request(
@@ -158,9 +158,9 @@ class Mealie(HttpResponder):
             headers=self.headers,
             params={"tags": self.tag, "perPage": tagged_recipes_nb},
         )
-        self.tagged_recipes = [
+        self.tagged_recipes = {
             recipe["orgURL"] for recipe in tagged_recipes_res["items"]
-        ]
+        }
 
     def add_mealie_recipe(self, recipe_url):
         logging.info(f"Creating new recipe with url: {recipe_url}")
@@ -291,10 +291,10 @@ def main():
         else:
             logging.info("All fetched recipes already exist in Mealie!")
         exit(0)
-    for new_recipe in hellofresh_client.recipes:
-        if new_recipe not in mealie_client.tagged_recipes:
-            recipe_slug = mealie_client.add_mealie_recipe(new_recipe)
-            mealie_client.update_mealie_recipe(recipe_slug)
+    new_recipes = hellofresh_client.recipes - mealie_client.tagged_recipes
+    for new_recipe in new_recipes:
+        recipe_slug = mealie_client.add_mealie_recipe(new_recipe)
+        mealie_client.update_mealie_recipe(recipe_slug)
 
 
 if __name__ == "__main__":
