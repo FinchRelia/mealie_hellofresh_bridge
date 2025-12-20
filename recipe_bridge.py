@@ -292,6 +292,9 @@ def main():
             logging.info("All fetched recipes already exist in Mealie!")
         exit(0)
     new_recipes = hellofresh_client.recipes - mealie_client.tagged_recipes
+    if not new_recipes:
+        logging.info("All scrapped recipes already in Mealie, exiting.")
+        exit(0)
     for new_recipe in new_recipes:
         recipe_slug = mealie_client.add_mealie_recipe(new_recipe)
         mealie_client.update_mealie_recipe(recipe_slug)
